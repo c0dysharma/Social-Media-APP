@@ -7,7 +7,7 @@ import {
   createPost,
   updatePost,
   deletePost,
-  likePost,
+  likeUnlikePost,
   commentPost,
 } from '../controllers/postController.js';
 
@@ -22,7 +22,7 @@ router
   .put(validateUser, updatePost)
   .delete(validateUser, deletePost);
 
-router.route('/:id/like').post(validateUser, likePost);
+router.route('/:id/like').post(validateUser, likeUnlikePost);
 router.route('/:id/comment').post(validateUser, commentPost);
 
 export default router;

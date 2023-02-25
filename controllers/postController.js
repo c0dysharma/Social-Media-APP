@@ -65,7 +65,7 @@ export const deletePost = catchAsync(async (req, res, next) => {
   return next(new AppError('You can only delete your post', 403));
 });
 
-export const likePost = catchAsync(async (req, res, next) => {
+export const likeUnlikePost = catchAsync(async (req, res, next) => {
   const foundPost = await Post.findById(req.params.id);
   if (!foundPost) return next(new AppError('Requested post not found', 404));
 

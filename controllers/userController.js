@@ -33,7 +33,7 @@ export const updateuser = catchAsync(async (req, res, next) => {
   return next(new AppError("You can't update someone else's account.", 403));
 });
 
-export const followUser = catchAsync(async (req, res, next) => {
+export const followUnfollowUser = catchAsync(async (req, res, next) => {
   const foundUser = await User.findOne({ username: req.params.username });
   if (!foundUser) return next(new AppError('Requested User not found', 404));
 
@@ -41,10 +41,20 @@ export const followUser = catchAsync(async (req, res, next) => {
   if (req.user._id.equals(foundUser._id))
     return next(new AppError('You can only follow other user', 403));
 
-  // if already follow skip
-  if (req.user.following.includes(foundUser._id))
-    return next(new AppError('You already follow other user', 403));
+  // if already follow- unfollow
+  if (req.user.following.includes(foundUser._id)) {
+    // remove foundUser to loggedInUser's following list
+    // remove loggedInUser to foundUser's followers list
+    req.user.following.pull(foundUser._id);
+    foundUser.followers.pull(req.user._id);
+    await req.user.save({ validateBeforeSave: false });
+    await foundUser.save({ validateBeforeSave: false });
 
+    return res
+      .status(200)
+      .json({ status: 'success', data: req.user.following });
+  }
+  // else follow
   // add foundUser to loggedInUser's following list
   // add loggedInUser to foundUser's followers list
   req.user.following.push(foundUser._id);
@@ -53,29 +63,6 @@ export const followUser = catchAsync(async (req, res, next) => {
   await foundUser.save({ validateBeforeSave: false });
 
   await addNotification(foundUser, `${req.user.name} started following you.`);
-
-  return res.status(200).json({ status: 'success', data: req.user.following });
-});
-
-export const unFollowUser = catchAsync(async (req, res, next) => {
-  const foundUser = await User.findOne({ username: req.params.username });
-  if (!foundUser) return next(new AppError('Requested User not found', 404));
-
-  // you cannot follow urself
-  if (req.user._id.equals(foundUser._id))
-    return next(new AppError('You can only follow other user', 403));
-
-  // if don't follow skip
-  if (!req.user.following.includes(foundUser._id))
-    // eslint-disable-next-line quotes
-    return next(new AppError("You don't follow other user", 403));
-
-  // remove foundUser to loggedInUser's following list
-  // remove loggedInUser to foundUser's followers list
-  req.user.following.pull(foundUser._id);
-  foundUser.followers.pull(req.user._id);
-  await req.user.save({ validateBeforeSave: false });
-  await foundUser.save({ validateBeforeSave: false });
 
   return res.status(200).json({ status: 'success', data: req.user.following });
 });

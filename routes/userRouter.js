@@ -4,8 +4,7 @@ import {
   getAllUser,
   getUser,
   updateuser,
-  followUser,
-  unFollowUser,
+  followUnfollowUser,
 } from '../controllers/userController.js';
 import validateUser from '../middlewares/validateUser.js';
 
@@ -16,7 +15,6 @@ router
   .route('/:username')
   .get(validateUser, getUser)
   .put(validateUser, updateuser);
-router.route('/:username/follow').post(validateUser, followUser);
-router.route('/:username/unfollow').post(validateUser, unFollowUser);
+router.route('/:username/follow').post(validateUser, followUnfollowUser);
 
 export default router;
