@@ -3,6 +3,14 @@ import Post from '../models/postModel.js';
 import AppError from '../utils/appError.js';
 
 export const getAllPosts = catchAsync(async (req, res, next) => {
+  // if query get only those posts
+  if (req.query.q) {
+    const foundPosts = await Post.find({ desc: { $regex: req.query.q } });
+    if (foundPosts.length)
+      return res.status(200).json({ status: 'success', data: foundPosts });
+    return next(new AppError('No search result found', 404));
+  }
+
   // a users all post
   const allPosts = await Post.find({ userId: req.user._id });
   return res.status(200).json({ status: 'success', data: allPosts });
