@@ -7,6 +7,8 @@ import {
   createPost,
   updatePost,
   deletePost,
+  likePost,
+  commentPost,
 } from '../controllers/postController.js';
 
 const router = express.Router();
@@ -21,5 +23,8 @@ router
   .post(validateUser, createPost)
   .put(validateUser, updatePost)
   .delete(validateUser, deletePost);
+
+router.route('/:id/like').post(validateUser, likePost);
+router.route('/:id/comment').post(validateUser, commentPost);
 
 export default router;
