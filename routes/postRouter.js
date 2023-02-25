@@ -13,14 +13,12 @@ import {
 
 const router = express.Router();
 
-// for admins only
-router.route('/').get(validateUser, getAllPosts);
+router.route('/').get(validateUser, getAllPosts).post(validateUser, createPost);
 
 // rest of the people
 router
   .route('/:id')
   .get(validateUser, getPost)
-  .post(validateUser, createPost)
   .put(validateUser, updatePost)
   .delete(validateUser, deletePost);
 
