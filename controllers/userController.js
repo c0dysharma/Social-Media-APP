@@ -1,4 +1,5 @@
 import catchAsync from '../utils/catchAsync.js';
+import addNotification from '../utils/addNotification.js';
 
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
@@ -50,6 +51,8 @@ export const followUser = catchAsync(async (req, res, next) => {
   foundUser.followers.push(req.user._id);
   await req.user.save({ validateBeforeSave: false });
   await foundUser.save({ validateBeforeSave: false });
+
+  await addNotification(foundUser, `${req.user.name} started following you.`);
 
   return res.status(200).json({ status: 'success', data: req.user.following });
 });
