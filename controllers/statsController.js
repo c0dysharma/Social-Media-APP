@@ -2,6 +2,7 @@ import catchAsync from '../utils/catchAsync.js';
 import Post from '../models/postModel.js';
 import User from '../models/userModel.js';
 import Notification from '../models/notificationModel.js';
+import AppError from '../utils/appError.js';
 
 const getHourlyStatsNested = async (model, subField = null) => {
   const unwinds = [];
@@ -43,6 +44,9 @@ const getHourlyStatsNested = async (model, subField = null) => {
   ]);
 };
 export default catchAsync(async (req, res, next) => {
+  // only admins can access the route
+  if (!req.user.isAdmin) return next(new AppError('Access Denied', 403));
+
   const postStats = await getHourlyStatsNested(Post);
   const userSingupStats = await getHourlyStatsNested(User);
   const notificationStats = await getHourlyStatsNested(
@@ -55,8 +59,9 @@ export default catchAsync(async (req, res, next) => {
     'comments.commentTexts'
   );
 
-  res.send({
-    result: {
+  return res.status(200).json({
+    status: 'success',
+    data: {
       postStats,
       userSingupStats,
       notificationStats,
